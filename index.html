@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tattletale</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Public+Sans:wght@400;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FDFDF6;
+    --ink:#1B2A4A;
+    --rule:#BBD2EE;
+    --margin-red:#D9534B;
+    --red-pen:#C8332B;
+    --pencil:#8A8578;
+    --highlight:#FFE86B;
+    --blue:#2456C4;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{background:#E9E4D8;}
+  body{
+    font-family:'Public Sans',system-ui,sans-serif;
+    color:var(--ink);
+    max-width:840px;
+    margin:0 auto;
+    padding:32px 16px 80px;
+  }
+  /* ---------- header ---------- */
+  header{text-align:center;margin-bottom:28px;}
+  .stamp{
+    display:inline-block;
+    font-family:'Special Elite',monospace;
+    font-size:clamp(2rem,6vw,3.2rem);
+    letter-spacing:.08em;
+    color:var(--red-pen);
+    border:4px double var(--red-pen);
+    border-radius:6px;
+    padding:.15em .5em .05em;
+    transform:rotate(-2deg);
+    text-transform:uppercase;
+    -webkit-user-select:none;user-select:none;
+  }
+  .tagline{
+    margin-top:12px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:.85rem;
+    color:var(--pencil);
+    letter-spacing:.05em;
+  }
+  /* ---------- form card ---------- */
+  .card{
+    background:var(--paper);
+    border:1px solid #D8D2C2;
+    border-radius:4px;
+    box-shadow:0 2px 6px rgba(27,42,74,.08);
+    padding:20px;
+    margin-bottom:26px;
+  }
+  form .row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px;}
+  .field{flex:1 1 160px;display:flex;flex-direction:column;gap:5px;}
+  label{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:.72rem;
+    text-transform:uppercase;
+    letter-spacing:.09em;
+    color:var(--pencil);
+  }
+  input,textarea,select{
+    font-family:'Public Sans',sans-serif;
+    font-size:1rem;
+    color:var(--ink);
+    background:#fff;
+    border:1px solid #C9C3B2;
+    border-radius:3px;
+    padding:9px 10px;
+  }
+  textarea{resize:vertical;min-height:72px;}
+  input:focus,textarea:focus,select:focus,button:focus-visible{
+    outline:2px solid var(--blue);
+    outline-offset:1px;
+  }
+  .now-wrap{display:flex;align-items:flex-end;}
+  .btn{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:.85rem;
+    letter-spacing:.04em;
+    border:1px solid var(--ink);
+    border-radius:3px;
+    background:#fff;
+    color:var(--ink);
+    padding:9px 14px;
+    cursor:pointer;
+  }
+  .btn:hover{background:var(--highlight);}
+  .btn-primary{
+    background:var(--ink);
+    color:#fff;
+    font-weight:600;
+  }
+  .btn-primary:hover{background:var(--blue);color:#fff;}
+  .btn-danger{border-color:var(--red-pen);color:var(--red-pen);}
+  .btn-danger:hover{background:var(--red-pen);color:#fff;}
+  .form-actions{display:flex;gap:10px;justify-content:flex-end;}
+  /* ---------- toolbar ---------- */
+  .toolbar{
+    display:flex;flex-wrap:wrap;gap:10px;align-items:center;
+    justify-content:space-between;margin-bottom:14px;
+  }
+  .toolbar .left{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+  .count{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:.8rem;color:var(--pencil);
+  }
+  /* ---------- notebook log ---------- */
+  .notebook{
+    background:
+      linear-gradient(to right, transparent 44px, var(--margin-red) 44px, var(--margin-red) 46px, transparent 46px),
+      repeating-linear-gradient(var(--paper) 0px, var(--paper) 31px, var(--rule) 31px, var(--rule) 32px);
+    border:1px solid #D8D2C2;
+    border-radius:4px;
+    box-shadow:0 2px 6px rgba(27,42,74,.08);
+    min-height:160px;
+    padding:8px 0;
+  }
+  .entry{
+    display:flex;gap:14px;align-items:flex-start;
+    padding:10px 16px 10px 60px;
+    border-bottom:1px dashed rgba(138,133,120,.35);
+    position:relative;
+  }
+  .entry:last-child{border-bottom:none;}
+  .entry .when{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:.78rem;color:var(--blue);
+    min-width:118px;line-height:1.5;flex-shrink:0;
+  }
+  .entry .who{
+    font-family:'Special Elite',monospace;
+    color:var(--red-pen);
+    min-width:90px;flex-shrink:0;
+    padding-top:1px;
+  }
+  .entry .what{flex:1;line-height:1.5;overflow-wrap:anywhere;}
+  .entry .del{
+    background:none;border:none;cursor:pointer;
+    color:var(--pencil);font-size:1rem;line-height:1;
+    padding:4px 6px;border-radius:3px;flex-shrink:0;
+  }
+  .entry .del:hover{color:#fff;background:var(--red-pen);}
+  .empty{
+    padding:48px 24px;text-align:center;
+    font-family:'Special Elite',monospace;
+    color:var(--pencil);
+  }
+  .saved-note{
+    margin-top:10px;text-align:right;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:.72rem;color:var(--pencil);
+  }
+  /* ---------- print sheet ---------- */
+  #printSheet{display:none;}
+  @media print{
+    html{background:#fff;}
+    body{max-width:none;padding:0;font-size:12pt;}
+    header,.card,.toolbar,.notebook,.saved-note{display:none !important;}
+    #printSheet{display:block;color:#000;}
+    #printSheet h1{
+      font-family:'Public Sans',sans-serif;font-size:16pt;
+      border-bottom:2px solid #000;padding-bottom:6px;margin-bottom:2px;
+    }
+    #printSheet .meta{font-size:9.5pt;color:#333;margin-bottom:14px;}
+    #printSheet table{width:100%;border-collapse:collapse;}
+    #printSheet th,#printSheet td{
+      border:1px solid #444;padding:6px 8px;text-align:left;
+      vertical-align:top;font-size:10pt;
+    }
+    #printSheet th{background:#eee;font-size:9pt;text-transform:uppercase;letter-spacing:.05em;}
+    #printSheet tr{page-break-inside:avoid;}
+  }
+  @media (max-width:560px){
+    .entry{flex-wrap:wrap;padding-left:56px;}
+    .entry .when{min-width:100%;}
+  }
+  @media (prefers-reduced-motion:no-preference){
+    .stamp{transition:transform .25s ease;}
+    .stamp:hover{transform:rotate(0deg);}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="stamp">Tattletale</div>
+  <p class="tagline">for the record.</p>
+</header>
+
+<section class="card" aria-label="Log a new entry">
+  <form id="entryForm">
+    <div class="row">
+      <div class="field">
+        <label for="who">Name</label>
+        <input id="who" list="names" placeholder="Who did it" required autocomplete="off">
+        <datalist id="names"></datalist>
+      </div>
+      <div class="field">
+        <label for="date">Date</label>
+        <input id="date" type="date" required>
+      </div>
+      <div class="field">
+        <label for="time">Time</label>
+        <input id="time" type="time" required>
+      </div>
+      <div class="now-wrap">
+        <button type="button" class="btn" id="nowBtn" title="Set date and time to right now">Now</button>
+      </div>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label for="note">What happened</label>
+        <textarea id="note" placeholder="e.g. On phone at the desk for 20 minutes while patients waited" required></textarea>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary">Add to the record</button>
+    </div>
+  </form>
+</section>
+
+<div class="toolbar">
+  <div class="left">
+    <select id="filter" aria-label="Filter by name">
+      <option value="">Everyone</option>
+    </select>
+    <span class="count" id="count"></span>
+  </div>
+  <div class="left">
+    <button class="btn" id="printBtn">Print the sheet</button>
+    <button class="btn btn-danger" id="clearBtn">Clear all</button>
+  </div>
+</div>
+
+<section class="notebook" id="log" aria-label="Logged entries" aria-live="polite"></section>
+<p class="saved-note" id="savedNote"></p>
+
+<!-- printable version -->
+<div id="printSheet">
+  <h1>Incident Log</h1>
+  <p class="meta" id="printMeta"></p>
+  <table>
+    <thead>
+      <tr><th style="width:14%">Date</th><th style="width:10%">Time</th><th style="width:18%">Name</th><th>Description</th></tr>
+    </thead>
+    <tbody id="printRows"></tbody>
+  </table>
+</div>
+
+<script>
+(function(){
+  var KEY = 'tattletale-entries';
+  var entries = [];
+  var mode = 'memory'; // 'claude' | 'local' | 'memory'
+
+  /* ---------- storage (works in Claude artifacts, saved files, or falls back to memory) ---------- */
+  function detectStorage(){
+    if (typeof window.storage !== 'undefined' && window.storage && window.storage.get) return 'claude';
+    try {
+      var t = '__tt_test__';
+      window.localStorage.setItem(t, '1');
+      window.localStorage.removeItem(t);
+      return 'local';
+    } catch(e){ return 'memory'; }
+  }
+
+  async function loadEntries(){
+    mode = detectStorage();
+    try{
+      if (mode === 'claude'){
+        try{
+          var r = await window.storage.get(KEY);
+          if (r && r.value) entries = JSON.parse(r.value);
+        }catch(e){ entries = []; } // key doesn't exist yet
+      } else if (mode === 'local'){
+        var raw = window.localStorage.getItem(KEY);
+        if (raw) entries = JSON.parse(raw);
+      }
+    }catch(e){ entries = []; }
+    if(!Array.isArray(entries)) entries = [];
+  }
+
+  async function saveEntries(){
+    var payload = JSON.stringify(entries);
+    try{
+      if (mode === 'claude'){ await window.storage.set(KEY, payload); }
+      else if (mode === 'local'){ window.localStorage.setItem(KEY, payload); }
+    }catch(e){ /* keep going in memory */ }
+    updateSavedNote();
+  }
+
+  function updateSavedNote(){
+    var el = document.getElementById('savedNote');
+    if (mode === 'memory'){
+      el.textContent = 'Heads up: this browser is blocking saving — entries will be lost when you close the page. Print before you leave!';
+    } else {
+      el.textContent = entries.length ? 'Saved automatically \u2713' : '';
+    }
+  }
+
+  /* ---------- helpers ---------- */
+  function esc(s){
+    return String(s).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+  function fmtDate(iso){
+    var p = iso.split('-');
+    if(p.length !== 3) return iso;
+    var d = new Date(+p[0], +p[1]-1, +p[2]);
+    return d.toLocaleDateString(undefined, {weekday:'short', month:'short', day:'numeric', year:'numeric'});
+  }
+  function fmtTime(t){
+    var p = t.split(':');
+    if(p.length < 2) return t;
+    var h = +p[0], m = p[1];
+    var ap = h >= 12 ? 'PM' : 'AM';
+    h = h % 12 || 12;
+    return h + ':' + m + ' ' + ap;
+  }
+  function sorted(list){
+    return list.slice().sort(function(a,b){
+      return (b.date + b.time).localeCompare(a.date + a.time);
+    });
+  }
+  function setNow(){
+    var n = new Date();
+    var pad = function(x){ return String(x).padStart(2,'0'); };
+    document.getElementById('date').value = n.getFullYear() + '-' + pad(n.getMonth()+1) + '-' + pad(n.getDate());
+    document.getElementById('time').value = pad(n.getHours()) + ':' + pad(n.getMinutes());
+  }
+
+  /* ---------- rendering ---------- */
+  function render(){
+    var filter = document.getElementById('filter').value;
+    var log = document.getElementById('log');
+    var list = sorted(entries).filter(function(e){ return !filter || e.who === filter; });
+
+    if (!list.length){
+      log.innerHTML = '<div class="empty">Nothing on the record' + (filter ? ' for ' + esc(filter) : '') + '... yet.</div>';
+    } else {
+      log.innerHTML = list.map(function(e){
+        return '<div class="entry">' +
+          '<div class="when">' + esc(fmtDate(e.date)) + '<br>' + esc(fmtTime(e.time)) + '</div>' +
+          '<div class="who">' + esc(e.who) + '</div>' +
+          '<div class="what">' + esc(e.note) + '</div>' +
+          '<button class="del" data-id="' + e.id + '" title="Delete entry" aria-label="Delete entry">&#10005;</button>' +
+        '</div>';
+      }).join('');
+    }
+
+    // names for filter + datalist
+    var names = [];
+    entries.forEach(function(e){ if(names.indexOf(e.who) === -1) names.push(e.who); });
+    names.sort();
+    var sel = document.getElementById('filter');
+    var current = sel.value;
+    sel.innerHTML = '<option value="">Everyone</option>' + names.map(function(n){
+      return '<option' + (n === current ? ' selected' : '') + '>' + esc(n) + '</option>';
+    }).join('');
+    document.getElementById('names').innerHTML = names.map(function(n){
+      return '<option value="' + esc(n) + '">';
+    }).join('');
+
+    var c = document.getElementById('count');
+    var total = filter ? list.length : entries.length;
+    c.textContent = total === 0 ? '' : total + (total === 1 ? ' incident' : ' incidents') + ' on the record' + (filter ? ' for ' + filter : '');
+
+    updateSavedNote();
+  }
+
+  function buildPrintSheet(){
+    var filter = document.getElementById('filter').value;
+    var list = sorted(entries).filter(function(e){ return !filter || e.who === filter; })
+      .slice().reverse(); // oldest first reads better on paper
+    document.getElementById('printMeta').textContent =
+      (filter ? 'Subject: ' + filter + '  \u2022  ' : '') +
+      list.length + ' entr' + (list.length === 1 ? 'y' : 'ies') +
+      '  \u2022  Prepared ' + new Date().toLocaleDateString(undefined,{month:'long',day:'numeric',year:'numeric'});
+    document.getElementById('printRows').innerHTML = list.map(function(e){
+      return '<tr><td>' + esc(fmtDate(e.date)) + '</td><td>' + esc(fmtTime(e.time)) + '</td><td>' + esc(e.who) + '</td><td>' + esc(e.note) + '</td></tr>';
+    }).join('');
+  }
+
+  /* ---------- events ---------- */
+  document.getElementById('entryForm').addEventListener('submit', function(ev){
+    ev.preventDefault();
+    var who = document.getElementById('who').value.trim();
+    var date = document.getElementById('date').value;
+    var time = document.getElementById('time').value;
+    var note = document.getElementById('note').value.trim();
+    if(!who || !date || !time || !note) return;
+    entries.push({ id: Date.now() + '-' + Math.random().toString(36).slice(2,7), who: who, date: date, time: time, note: note });
+    document.getElementById('note').value = '';
+    saveEntries();
+    render();
+    document.getElementById('note').focus();
+  });
+
+  document.getElementById('nowBtn').addEventListener('click', setNow);
+
+  document.getElementById('log').addEventListener('click', function(ev){
+    var btn = ev.target.closest('.del');
+    if(!btn) return;
+    entries = entries.filter(function(e){ return e.id !== btn.getAttribute('data-id'); });
+    saveEntries();
+    render();
+  });
+
+  document.getElementById('filter').addEventListener('change', render);
+
+  document.getElementById('printBtn').addEventListener('click', function(){
+    buildPrintSheet();
+    window.print();
+  });
+
+  document.getElementById('clearBtn').addEventListener('click', function(){
+    if(!entries.length) return;
+    if(confirm('Erase the entire record? This cannot be undone.')){
+      entries = [];
+      saveEntries();
+      render();
+    }
+  });
+
+  /* ---------- init ---------- */
+  setNow();
+  loadEntries().then(render);
+})();
+</script>
+</body>
+</html>

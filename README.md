@@ -6,6 +6,11 @@ A dead-simple incident log that runs entirely in your browser. Type a name, set 
 
 Built for anyone who's tired of keeping receipts on pen and paper.
 
+*Available at*
+ 
+ **https://kaizoku-ronin.github.io/tattletale/**
+
+
 ## Features
 
 - **One-tap timestamps** — the "Now" button stamps the current date and time
